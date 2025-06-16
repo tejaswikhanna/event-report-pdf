@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Event Report PDF Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <style>
+    body { font-family: sans-serif; background: #f8f9fa; padding: 40px; }
+    form, #pdfContent { background: white; padding: 20px; border-radius: 8px; max-width: 800px; margin: auto; }
+    label { display: block; margin-top: 15px; font-weight: bold; }
+    input, textarea, select {
+      width: 100%; padding: 10px; margin-top: 5px;
+      border: 1px solid #ccc; border-radius: 6px;
+    }
+    button { margin-top: 20px; padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    #pdfContent { display: none; }
+  </style>
+</head>
+<body>
+
+<h2 style="text-align: center;">Event Report PDF Generator</h2>
+
+<form id="eventForm">
+  <label>Event Name</label><input name="eventName" required>
+  <label>Department</label><input name="department" required>
+  <label>Event Date</label><input name="eventDate" type="date" required>
+  <label>Location</label><input name="location" required>
+  <label>No. of Participants</label><input name="noOfParticipants" required>
+  <label>Resource Person</label><input name="resourcePerson" required>
+  <label>Designation of Resource Person</label><input name="resourceDesignation">
+  <label>Company of Resource Person</label><input name="resourceCompany">
+  <label>Organized By</label><input name="organizedBy">
+  <label>Faculty Organizer</label><input name="facultyOrganizer">
+  <label>Designation of Faculty</label><input name="facultyDesignation">
+  <label>Event Description</label><textarea name="eventDescription"></textarea>
+  <label>Event Type</label>
+  <select name="eventType">
+    <option>Workshop</option>
+    <option>Seminar</option>
+    <option>Conference</option>
+    <option>Talk</option>
+  </select>
+  <label>Event Budget</label><input name="eventBudget">
+  <label>Sponsor</label><input name="sponsor">
+
+  <button type="submit">Download PDF</button>
+</form>
+
+<!-- Hidden content that will be converted to PDF -->
+<div id="pdfContent">
+  <h2 style="text-align:center;">Event Report</h2>
+  <p><strong>Event Name:</strong> <span id="r_eventName"></span></p>
+  <p><strong>Department:</strong> <span id="r_department"></span></p>
+  <p><strong>Date:</strong> <span id="r_eventDate"></span></p>
+  <p><strong>Location:</strong> <span id="r_location"></span></p>
+  <p><strong>No. of Participants</strong> <span id="r_noOfParticipants"></span></p>
+  <p><strong>Resource Person:</strong> <span id="r_resourcePerson"></span></p>
+  <p><strong>Designation:</strong> <span id="r_resourceDesignation"></span></p>
+  <p><strong>Company:</strong> <span id="r_resourceCompany"></span></p>
+  <p><strong>Organized By:</strong> <span id="r_organizedBy"></span></p>
+  <p><strong>Faculty Organizer:</strong> <span id="r_facultyOrganizer"></span></p>
+  <p><strong>Faculty Designation:</strong> <span id="r_facultyDesignation"></span></p>
+  <p><strong>Type:</strong> <span id="r_eventType"></span></p>
+  <p><strong>Budget:</strong> <span id="r_eventBudget"></span></p>
+  <p><strong>Sponsor:</strong> <span id="r_sponsor"></span></p>
+  <p><strong>Description:</strong><br><span id="r_eventDescription"></span></p>
+</div>
+
+<script>
+  document.getElementById('eventForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    for (let [key, value] of formData.entries()) {
+      const el = document.getElementById(`r_${key}`);
+      if (el) el.textContent = value;
+    }
+    document.getElementById('pdfContent').style.display = 'block';
+
+    html2pdf()
+      .set({ margin: 10, filename: formData.get('eventName') + '_Report.pdf', html2canvas: { scale: 2 } })
+      .from(document.getElementById('pdfContent'))
+      .save()
+      .then(() => {
+        document.getElementById('pdfContent').style.display = 'none';
+      });
+  });
+</script>
+
+</body>
+</html>
