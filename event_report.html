@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Report Generator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+  <style>
+    #report {
+      width: 80%;
+      margin: auto;
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      border: 1px solid #ddd;
+    }
+    .label { font-weight: bold; }
+  </style>
+</head>
+<body>
+
+<h2 style="text-align:center;">Event Report Generator</h2>
+
+<form id="eventForm">
+  <label>Event Name: <input type="text" name="eventName" required></label><br><br>
+  <label>Department: <input type="text" name="department"></label><br><br>
+  <label>Event Date: <input type="date" name="eventDate"></label><br><br>
+  <label>Location: <input type="text" name="location"></label><br><br>
+  <label>Resource Person: <input type="text" name="resourcePerson"></label><br><br>
+  <label>Designation: <input type="text" name="designation"></label><br><br>
+  <label>Organized by: <input type="text" name="organizedBy"></label><br><br>
+  <label>Faculty Organizer: <input type="text" name="facultyOrganizer"></label><br><br>
+  <label>Event Type: <input type="text" name="eventType"></label><br><br>
+  <label>Description: <br><textarea name="description" rows="5" cols="50"></textarea></label><br><br>
+  <button type="button" onclick="generatePDF()">Generate PDF</button>
+</form>
+
+<!-- Hidden report container -->
+<div id="report" style="display:none;">
+  <h2>Event Report</h2>
+  <p><span class="label">Event Name:</span> <span id="r_eventName"></span></p>
+  <p><span class="label">Department:</span> <span id="r_department"></span></p>
+  <p><span class="label">Event Date:</span> <span id="r_eventDate"></span></p>
+  <p><span class="label">Location:</span> <span id="r_location"></span></p>
+  <p><span class="label">Resource Person:</span> <span id="r_resourcePerson"></span></p>
+  <p><span class="label">Designation:</span> <span id="r_designation"></span></p>
+  <p><span class="label">Organized by:</span> <span id="r_organizedBy"></span></p>
+  <p><span class="label">Faculty Organizer:</span> <span id="r_facultyOrganizer"></span></p>
+  <p><span class="label">Event Type:</span> <span id="r_eventType"></span></p>
+  <p><span class="label">Description:</span><br><span id="r_description"></span></p>
+</div>
+
+<script>
+  function generatePDF() {
+    const form = document.forms['eventForm'];
+    const fields = ['eventName', 'department', 'eventDate', 'location', 'resourcePerson', 'designation', 'organizedBy', 'facultyOrganizer', 'eventType', 'description'];
+
+    fields.forEach(field => {
+      document.getElementById('r_' + field).textContent = form[field].value;
+    });
+
+    document.getElementById('report').style.display = 'block';
+
+    html2pdf().from(document.getElementById('report')).save(`${form['eventName'].value || 'event'}_report.pdf`);
+  }
+</script>
+
+</body>
+</html>
