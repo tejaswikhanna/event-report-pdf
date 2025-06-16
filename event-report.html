@@ -6,9 +6,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f2f2f2;
+      font-family: Arial, sans-serif;
       padding: 40px;
+      background: #f9f9f9;
     }
     form {
       background: white;
@@ -16,33 +16,37 @@
       border-radius: 8px;
       max-width: 800px;
       margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
     label {
       display: block;
       margin-top: 15px;
-      font-weight: bold;
     }
     input, textarea, select {
       width: 100%;
-      padding: 10px;
+      padding: 8px;
       margin-top: 5px;
+      border-radius: 4px;
       border: 1px solid #ccc;
-      border-radius: 6px;
     }
     button {
       margin-top: 20px;
       padding: 10px 20px;
-      background: #007BFF;
+      background: #007bff;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 5px;
       cursor: pointer;
+    }
+
+    #pdf-preview {
+      display: none;
     }
   </style>
 </head>
 <body>
 
-<h2 style="text-align: center;">Event Report PDF Generator</h2>
+<h2 style="text-align:center;">Event Report PDF Generator</h2>
 
 <form id="eventForm">
   <label>Event Name</label><input name="eventName" required>
@@ -56,7 +60,7 @@
   <label>Organized By</label><input name="organizedBy">
   <label>Faculty Organizer</label><input name="facultyOrganizer">
   <label>Designation of Faculty</label><input name="facultyDesignation">
-  <label>Event Description</label><textarea name="eventDescription" rows="5"></textarea>
+  <label>Event Description</label><textarea name="eventDescription" rows="4"></textarea>
   <label>Event Type</label>
   <select name="eventType">
     <option>Workshop</option>
@@ -70,42 +74,54 @@
   <button type="submit">Download PDF</button>
 </form>
 
+<!-- PDF Content Template -->
+<div id="pdf-preview"></div>
+
 <script>
-  document.getElementById('eventForm').addEventListener('submit', function (e) {
+  document.getElementById("eventForm").addEventListener("submit", function(e) {
     e.preventDefault();
 
     const formData = new FormData(e.target);
+    const data = {};
+    for (let [key, val] of formData.entries()) {
+      data[key] = val || '';
+    }
 
-    let html = `
-      <div style="font-family: sans-serif; padding: 20px;">
-        <h2 style="text-align:center;">Event Report</h2>
-        <p><strong>Event Name:</strong> ${formData.get("eventName")}</p>
-        <p><strong>Department:</strong> ${formData.get("department")}</p>
-        <p><strong>Event Date:</strong> ${formData.get("eventDate")}</p>
-        <p><strong>Location:</strong> ${formData.get("location")}</p>
-        <p><strong>No. of Participants:</strong> ${formData.get("noOfParticipants")}</p>
-        <p><strong>Resource Person:</strong> ${formData.get("resourcePerson")}</p>
-        <p><strong>Designation of Resource Person:</strong> ${formData.get("resourceDesignation")}</p>
-        <p><strong>Company of Resource Person:</strong> ${formData.get("resourceCompany")}</p>
-        <p><strong>Organized By:</strong> ${formData.get("organizedBy")}</p>
-        <p><strong>Faculty Organizer:</strong> ${formData.get("facultyOrganizer")}</p>
-        <p><strong>Faculty Designation:</strong> ${formData.get("facultyDesignation")}</p>
-        <p><strong>Event Type:</strong> ${formData.get("eventType")}</p>
-        <p><strong>Event Budget:</strong> ${formData.get("eventBudget")}</p>
-        <p><strong>Sponsor:</strong> ${formData.get("sponsor")}</p>
-        <p><strong>Description:</strong><br>${formData.get("eventDescription").replace(/\n/g, "<br>")}</p>
+    const htmlContent = `
+      <div style="font-family: Arial; padding: 20px;">
+        <h2 style="text-align: center;">Event Report</h2>
+        <p><strong>Event Name:</strong> ${data.eventName}</p>
+        <p><strong>Department:</strong> ${data.department}</p>
+        <p><strong>Event Date:</strong> ${data.eventDate}</p>
+        <p><strong>Location:</strong> ${data.location}</p>
+        <p><strong>No. of Participants:</strong> ${data.noOfParticipants}</p>
+        <p><strong>Resource Person:</strong> ${data.resourcePerson}</p>
+        <p><strong>Designation of Resource Person:</strong> ${data.resourceDesignation}</p>
+        <p><strong>Company of Resource Person:</strong> ${data.resourceCompany}</p>
+        <p><strong>Organized By:</strong> ${data.organizedBy}</p>
+        <p><strong>Faculty Organizer:</strong> ${data.facultyOrganizer}</p>
+        <p><strong>Designation of Faculty:</strong> ${data.facultyDesignation}</p>
+        <p><strong>Event Type:</strong> ${data.eventType}</p>
+        <p><strong>Event Budget:</strong> ${data.eventBudget}</p>
+        <p><strong>Sponsor:</strong> ${data.sponsor}</p>
+        <p><strong>Description:</strong><br>${data.eventDescription.replace(/\n/g, '<br>')}</p>
       </div>
     `;
 
-    const container = document.createElement('div');
-    container.innerHTML = html;
+    const pdfContainer = document.getElementById("pdf-preview");
+    pdfContainer.innerHTML = htmlContent;
+    pdfContainer.style.display = "block"; // ensure it's rendered
 
-    html2pdf().set({
+    const opt = {
       margin: 10,
-      filename: `${formData.get("eventName")}_Report.pdf`,
+      filename: `${data.eventName}_Report.pdf`,
       html2canvas: { scale: 2 },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).from(container).save();
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+
+    html2pdf().set(opt).from(pdfContainer).save().then(() => {
+      pdfContainer.style.display = "none"; // hide again
+    });
   });
 </script>
 
