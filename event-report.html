@@ -25,7 +25,7 @@
   <label>Department</label><input name="department" required>
   <label>Event Date</label><input name="eventDate" type="date" required>
   <label>Location</label><input name="location" required>
-  <label>No. of Participants</label><input name="noParticipants" required>
+  <label>No. of Participants</label><input name="noOfParticipants" required>
   <label>Resource Person</label><input name="resourcePerson" required>
   <label>Designation of Resource Person</label><input name="resourceDesignation">
   <label>Company of Resource Person</label><input name="resourceCompany">
@@ -53,7 +53,7 @@
   <p><strong>Department:</strong> <span id="r_department"></span></p>
   <p><strong>Date:</strong> <span id="r_eventDate"></span></p>
   <p><strong>Location:</strong> <span id="r_location"></span></p>
-  <p><strong>No. of Participants:</strong> <span id="r_noParticipants"></span></p>
+  <p><strong>No. of Participants:</strong> <span id="r_noOfParticipants"></span></p>
   <p><strong>Resource Person:</strong> <span id="r_resourcePerson"></span></p>
   <p><strong>Designation:</strong> <span id="r_resourceDesignation"></span></p>
   <p><strong>Company:</strong> <span id="r_resourceCompany"></span></p>
@@ -77,7 +77,12 @@
     document.getElementById('pdfContent').style.display = 'block';
 
     html2pdf()
-      .set({ margin: 10, filename: formData.get('eventName') + '_Report.pdf', html2canvas: { scale: 2 } })
+      .set({
+        margin: 10,
+        filename: formData.get('eventName') + '_Report.pdf',
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      })
       .from(document.getElementById('pdfContent'))
       .save()
       .then(() => {
