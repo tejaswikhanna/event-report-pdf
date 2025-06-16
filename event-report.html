@@ -5,27 +5,38 @@
   <title>Event Report PDF Generator</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
-    body { font-family: sans-serif; background: #f8f9fa; padding: 40px; }
-    form, #pdfContent { background: white; padding: 20px; border-radius: 8px; max-width: 800px; margin: auto; }
-    label { display: block; margin-top: 15px; font-weight: bold; }
-    input, textarea, select {
-      width: 100%; padding: 10px; margin-top: 5px;
-      border: 1px solid #ccc; border-radius: 6px;
+    body {
+      font-family: sans-serif;
+      background: #f2f2f2;
+      padding: 40px;
     }
-    button { margin-top: 20px; padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    
-    /* Keep it renderable, just hidden from view */
-    #pdfContent {
-      position: absolute;
-      left: -9999px;
-      top: 0;
+    form {
       background: white;
-      width: 800px;
       padding: 20px;
+      border-radius: 8px;
+      max-width: 800px;
+      margin: auto;
     }
-
-    .page-break {
-      page-break-after: always;
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -59,44 +70,42 @@
   <button type="submit">Download PDF</button>
 </form>
 
-<!-- Hidden content used for PDF generation -->
-<div id="pdfContent">
-  <h2 style="text-align:center;">Event Report</h2>
-  <p><strong>Event Name:</strong> <span id="r_eventName"></span></p>
-  <p><strong>Department:</strong> <span id="r_department"></span></p>
-  <p><strong>Date:</strong> <span id="r_eventDate"></span></p>
-  <p><strong>Location:</strong> <span id="r_location"></span></p>
-  <p><strong>No. of Participants:</strong> <span id="r_noOfParticipants"></span></p>
-  <p><strong>Resource Person:</strong> <span id="r_resourcePerson"></span></p>
-  <p><strong>Designation:</strong> <span id="r_resourceDesignation"></span></p>
-  <p><strong>Company:</strong> <span id="r_resourceCompany"></span></p>
-  <p><strong>Organized By:</strong> <span id="r_organizedBy"></span></p>
-  <p><strong>Faculty Organizer:</strong> <span id="r_facultyOrganizer"></span></p>
-  <p><strong>Faculty Designation:</strong> <span id="r_facultyDesignation"></span></p>
-  <p><strong>Type:</strong> <span id="r_eventType"></span></p>
-  <p><strong>Budget:</strong> <span id="r_eventBudget"></span></p>
-  <p><strong>Sponsor:</strong> <span id="r_sponsor"></span></p>
-  <p><strong>Description:</strong><br><span id="r_eventDescription"></span></p>
-</div>
-
 <script>
-  document.getElementById('eventForm').addEventListener('submit', function(e) {
+  document.getElementById('eventForm').addEventListener('submit', function (e) {
     e.preventDefault();
+
     const formData = new FormData(e.target);
 
-    for (let [key, value] of formData.entries()) {
-      const el = document.getElementById(`r_${key}`);
-      if (el) el.textContent = value;
-    }
+    let html = `
+      <div style="font-family: sans-serif; padding: 20px;">
+        <h2 style="text-align:center;">Event Report</h2>
+        <p><strong>Event Name:</strong> ${formData.get("eventName")}</p>
+        <p><strong>Department:</strong> ${formData.get("department")}</p>
+        <p><strong>Event Date:</strong> ${formData.get("eventDate")}</p>
+        <p><strong>Location:</strong> ${formData.get("location")}</p>
+        <p><strong>No. of Participants:</strong> ${formData.get("noOfParticipants")}</p>
+        <p><strong>Resource Person:</strong> ${formData.get("resourcePerson")}</p>
+        <p><strong>Designation of Resource Person:</strong> ${formData.get("resourceDesignation")}</p>
+        <p><strong>Company of Resource Person:</strong> ${formData.get("resourceCompany")}</p>
+        <p><strong>Organized By:</strong> ${formData.get("organizedBy")}</p>
+        <p><strong>Faculty Organizer:</strong> ${formData.get("facultyOrganizer")}</p>
+        <p><strong>Faculty Designation:</strong> ${formData.get("facultyDesignation")}</p>
+        <p><strong>Event Type:</strong> ${formData.get("eventType")}</p>
+        <p><strong>Event Budget:</strong> ${formData.get("eventBudget")}</p>
+        <p><strong>Sponsor:</strong> ${formData.get("sponsor")}</p>
+        <p><strong>Description:</strong><br>${formData.get("eventDescription").replace(/\n/g, "<br>")}</p>
+      </div>
+    `;
 
-    const opt = {
+    const container = document.createElement('div');
+    container.innerHTML = html;
+
+    html2pdf().set({
       margin: 10,
-      filename: formData.get('eventName') + '_Report.pdf',
+      filename: `${formData.get("eventName")}_Report.pdf`,
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().set(opt).from(document.getElementById('pdfContent')).save();
+    }).from(container).save();
   });
 </script>
 
