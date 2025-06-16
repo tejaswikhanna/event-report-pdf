@@ -13,7 +13,20 @@
       border: 1px solid #ccc; border-radius: 6px;
     }
     button { margin-top: 20px; padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 6px; cursor: pointer; }
-    #pdfContent { display: none; }
+    
+    /* Keep it renderable, just hidden from view */
+    #pdfContent {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      background: white;
+      width: 800px;
+      padding: 20px;
+    }
+
+    .page-break {
+      page-break-after: always;
+    }
   </style>
 </head>
 <body>
@@ -32,7 +45,7 @@
   <label>Organized By</label><input name="organizedBy">
   <label>Faculty Organizer</label><input name="facultyOrganizer">
   <label>Designation of Faculty</label><input name="facultyDesignation">
-  <label>Event Description</label><textarea name="eventDescription"></textarea>
+  <label>Event Description</label><textarea name="eventDescription" rows="5"></textarea>
   <label>Event Type</label>
   <select name="eventType">
     <option>Workshop</option>
@@ -46,7 +59,7 @@
   <button type="submit">Download PDF</button>
 </form>
 
-<!-- Hidden content that will be converted to PDF -->
+<!-- Hidden content used for PDF generation -->
 <div id="pdfContent">
   <h2 style="text-align:center;">Event Report</h2>
   <p><strong>Event Name:</strong> <span id="r_eventName"></span></p>
@@ -70,24 +83,20 @@
   document.getElementById('eventForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(e.target);
+
     for (let [key, value] of formData.entries()) {
       const el = document.getElementById(`r_${key}`);
       if (el) el.textContent = value;
     }
-    document.getElementById('pdfContent').style.display = 'block';
 
-    html2pdf()
-      .set({
-        margin: 10,
-        filename: formData.get('eventName') + '_Report.pdf',
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      })
-      .from(document.getElementById('pdfContent'))
-      .save()
-      .then(() => {
-        document.getElementById('pdfContent').style.display = 'none';
-      });
+    const opt = {
+      margin: 10,
+      filename: formData.get('eventName') + '_Report.pdf',
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(document.getElementById('pdfContent')).save();
   });
 </script>
 
